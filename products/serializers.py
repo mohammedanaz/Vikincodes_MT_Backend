@@ -38,11 +38,11 @@ class ProductSerializer(serializers.ModelSerializer):
     variants = VariantSerializer(many=True, write_only=True)
     name = serializers.CharField(source="ProductName", required=True)
     ProductImage = VersatileImageFieldSerializer(
-        sizes=[  
-            ("thumbnail", "crop__100x100"),  
-            ("medium", "thumbnail__500x500"), 
+        sizes=[
+            ("thumbnail", "crop__100x100"),
+            ("medium", "thumbnail__500x500"),
         ],
-        required=False, 
+        required=False,
     )
 
     class Meta:
@@ -85,6 +85,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ListProductSerializer(serializers.ModelSerializer):
     CreatedUser = serializers.CharField(source="CreatedUser.username")
+    ProductImage = VersatileImageFieldSerializer(
+        sizes=[
+            ("thumbnail", "crop__100x100"),
+            ("medium", "thumbnail__500x500"),
+        ]
+    )
 
     class Meta:
         model = Products
@@ -95,4 +101,5 @@ class ListProductSerializer(serializers.ModelSerializer):
             "ProductName",
             "CreatedUser",
             "TotalStock",
+            "ProductImage",
         ]
