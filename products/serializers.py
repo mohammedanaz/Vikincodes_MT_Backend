@@ -103,3 +103,9 @@ class ListProductSerializer(serializers.ModelSerializer):
             "TotalStock",
             "ProductImage",
         ]
+
+class UpdateTotalStockSerializer(serializers.ModelSerializer):
+    '''To update the stock of a product'''
+    class Meta:
+        model = Products
+        fields = ['TotalStock']

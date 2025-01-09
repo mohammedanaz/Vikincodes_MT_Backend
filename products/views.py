@@ -3,11 +3,9 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import ProductSerializer, ListProductSerializer
+from .serializers import ProductSerializer, ListProductSerializer, UpdateTotalStockSerializer
 from django.db import DatabaseError
 from .models import Products
-import json
-from rest_framework.exceptions import ParseError
 from . import utils
 
 
@@ -43,3 +41,11 @@ class ListProductViewSet(generics.ListAPIView):
     queryset = Products.objects.filter(Active=True)
     serializer_class = ListProductSerializer
     permission_classes = [IsAuthenticated]
+
+class EditStockView(generics.UpdateAPIView):
+    queryset = Products.objects.all()
+    serializer_class = UpdateTotalStockSerializer
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return Products.objects.filter(id=self.kwargs['id'])
