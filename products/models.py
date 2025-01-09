@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.utils.translation import gettext as _
+from versatileimagefield.fields import VersatileImageField
 
 class Products(models.Model):
     '''To store product details'''
@@ -8,7 +9,7 @@ class Products(models.Model):
     ProductID = models.BigIntegerField(unique=True, blank=True, null=True)
     ProductCode = models.CharField(max_length=255, unique=True, blank=True, null=True)
     ProductName = models.CharField(max_length=255)
-    ProductImage = models.ImageField(upload_to="uploads/", blank=True, null=True)
+    ProductImage = VersatileImageField(upload_to="uploads/", blank=True, null=True)    
     CreatedDate = models.DateTimeField(auto_now_add=True)
     UpdatedDate = models.DateTimeField(blank=True, null=True)
     CreatedUser = models.ForeignKey(
@@ -55,11 +56,12 @@ class SubVariant(models.Model):
     variant = models.ForeignKey(
         Variant, related_name="sub_variants", on_delete=models.CASCADE
     )
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
 
     class Meta:
         db_table = "products_sub_variants"
         ordering = ("name",)
+        unique_together = (("variant", "name"),)
 
     def save(self, *args, **kwargs):
         self.name = self.name.upper()
@@ -79,6 +81,9 @@ class ProductVariant(models.Model):
     class Meta:
         db_table = "products_product_variants"
         unique_together = ("product", "variant")
+
+    def __str__(self):
+        return f'{self.product}-{self.variant}'
 
 class ProductSubVariant(models.Model):
     product_variant = models.ForeignKey(

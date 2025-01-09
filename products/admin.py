@@ -16,3 +16,11 @@ class VariantsAdmin(admin.ModelAdmin):
 class SubVariantsAdmin(admin.ModelAdmin):
     list_display = ('id', 'variant', 'name')
     search_fields = ('id', 'name')
+
+@admin.register(ProductVariant)
+class SubVariantsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'product', 'variant')
+
+@admin.register(ProductSubVariant)
+class SubVariantsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'product_variant', 'sub_variant')
