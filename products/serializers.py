@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import SubVariant, Variant, ProductVariant, ProductSubVariant, Products
 from versatileimagefield.serializers import VersatileImageFieldSerializer
+from decimal import Decimal
 
 
 class SubVariantSerializer(serializers.ModelSerializer):
@@ -84,6 +85,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class ListProductSerializer(serializers.ModelSerializer):
+    """To list all products"""
     CreatedUser = serializers.CharField(source="CreatedUser.username")
     ProductImage = VersatileImageFieldSerializer(
         sizes=[
@@ -105,7 +107,33 @@ class ListProductSerializer(serializers.ModelSerializer):
         ]
 
 class UpdateTotalStockSerializer(serializers.ModelSerializer):
-    '''To update the stock of a product'''
+    """To add/deduct the TotalStock"""
+    newStock = serializers.DecimalField(max_digits=20, decimal_places=8, write_only=True)
+    action = serializers.ChoiceField(choices=["add", "deduct"], write_only=True)
+    TotalStock = serializers.DecimalField(max_digits=20, decimal_places=8, read_only=True)
+
     class Meta:
         model = Products
-        fields = ['TotalStock']
+        fields = ['newStock', 'action', 'TotalStock']
+
+    def validate_newStock(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Enter a valid quantity.")
+        return value
+
+    def update(self, instance, validated_data):
+        action = validated_data.get("action")
+        new_stock = validated_data.get("newStock")
+
+        if isinstance(new_stock, (float, int)):
+            new_stock = Decimal(str(new_stock))
+
+        if action == "add":
+            instance.TotalStock += new_stock
+        elif action == "deduct":
+            if instance.TotalStock < new_stock:
+                raise serializers.ValidationError("Insufficient total stock.")
+            instance.TotalStock -= new_stock
+
+        instance.save()
+        return instance

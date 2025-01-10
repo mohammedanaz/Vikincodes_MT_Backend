@@ -46,6 +46,13 @@ class EditStockView(generics.UpdateAPIView):
     queryset = Products.objects.all()
     serializer_class = UpdateTotalStockSerializer
     lookup_field = 'id'
+    
+    def patch(self, request, *args, **kwargs):
+        product = self.get_object()
+        serializer = self.get_serializer(product, data=request.data, partial=True)
 
-    def get_queryset(self):
-        return Products.objects.filter(id=self.kwargs['id'])
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
